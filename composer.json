@@ -1,0 +1,20 @@
+{
+    "name": "glsv/elma-api",
+    "description": "utils for api elma365.ru",
+    "autoload": {
+        "psr-4": {
+            "Glsv\\ElmaApi\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Sergey Golyshev",
+            "email": "s.golyshev@globus-ltd.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=8.1.0",
+        "guzzlehttp/guzzle": "^7.5"
+    }
+}
