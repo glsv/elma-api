@@ -1,6 +1,7 @@
 {
     "name": "glsv/elma-api",
     "description": "utils for api elma365.ru",
+    "license": "Apache-2.0",
     "autoload": {
         "psr-4": {
             "Glsv\\ElmaApi\\": "src/"
