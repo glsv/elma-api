@@ -4,16 +4,31 @@ declare(strict_types=1);
 
 namespace Glsv\ElmaApi;
 
-use Glsv\ElmaApi\exceptions\ElmaApiException;
+use Glsv\ElmaApi\exceptions\{ElmaApiException, ElmaApiInvalidParamsException, ElmaApiRuntimeException};
 use GuzzleHttp\Client;
 
 class ElmaClientApi
 {
     protected Client $client;
 
-    public function __construct(protected string $baseUrl, protected string $bearerToken)
+    /**
+     * @throws ElmaApiInvalidParamsException
+     */
+    public function __construct(protected string $baseUrl, protected string $bearerToken, ?Client $client = null)
     {
-        $this->client = new Client(['base_uri' => $baseUrl]);
+        if ($this->baseUrl === "") {
+            throw new ElmaApiInvalidParamsException("baseUrl is empty.");
+        }
+
+        if ($this->bearerToken === "") {
+            throw new ElmaApiInvalidParamsException("bearerToken is empty.");
+        }
+
+        if ($client) {
+            $this->client = $client;
+        } else {
+            $this->client = new Client(['base_uri' => $baseUrl]);
+        }
     }
 
     public function makePost(string $relativeUrl, array $requestData)
@@ -26,21 +41,25 @@ class ElmaClientApi
         $statusCode = $response->getStatusCode();
 
         if ($statusCode !== 200) {
-            throw new ElmaApiException(sprintf(
+            throw new ElmaApiRuntimeException(sprintf(
                     'Request %s is fail. Status code: %d', $relativeUrl, $statusCode)
             );
         }
 
-        $data = json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        try {
+            $data = json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\Throwable $err) {
+            throw new ElmaApiRuntimeException("Error decode response as json", 0, $err);
+        }
 
         if (!isset($data['success'])) {
-            throw new ElmaApiException(sprintf(
+            throw new ElmaApiRuntimeException(sprintf(
                     'Response from %s doesn`t contain field success', $relativeUrl)
             );
         }
 
         if ($data['success'] !== true) {
-            throw new ElmaApiException(sprintf(
+            throw new ElmaApiRuntimeException(sprintf(
                     'Field success in response != true for request to %s', $relativeUrl)
             );
         }
@@ -58,7 +77,7 @@ class ElmaClientApi
         $statusCode = $response->getStatusCode();
 
         if ($statusCode !== 200) {
-            throw new ElmaApiException(sprintf(
+            throw new ElmaApiRuntimeException(sprintf(
                     'Request %s is fail. Status code: %d', $relativeUrl, $statusCode)
             );
         }
@@ -66,7 +85,7 @@ class ElmaClientApi
         $data = json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
 
         if (!isset($data['success'])) {
-            throw new \DomainException(sprintf(
+            throw new ElmaApiException(sprintf(
                     'Response from %s doesn`t contain field success', $relativeUrl)
             );
         }
