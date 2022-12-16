@@ -62,8 +62,6 @@ $api = new ElmaClientApi($baseUrl, $token);
 $service = new ListService($this->api);
 $relativeUrl = 'app/test/mylist/list';
 
-$items = $service->getAllItems($relativeUrl, $requestData);
-
 # Опциональная фильтрация элементов списка по его атрибутам. 
 $requestData = [
     "filter" => [
@@ -76,6 +74,6 @@ $requestData = [
     ],
 ];
 
-# $results содержит оригинальный response (array)
-$items = $this->service->getAllItems($relativeUrl, $requestData);
+# $items содержит список всех элементов списка Elma
+$items = $service->getAllItems($relativeUrl, $requestData);
 ```

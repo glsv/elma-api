@@ -22,7 +22,7 @@ class ListService
      * @throws \Glsv\ElmaApi\exceptions\ElmaApiException
      * @throws \JsonException
      */
-    public function getAllItems(string $relativeUrl, array $requestData, int $pageSize = 100)
+    public function getAllItems(string $relativeUrl, array $requestData, int $pageSize = 100): array
     {
         $items = [];
 
