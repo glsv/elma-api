@@ -28,3 +28,6 @@ phpunit.phar
 
 # vagrant runtime
 /.vagrant
+
+# Debug test
+test.php

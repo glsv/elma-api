@@ -31,7 +31,7 @@ class ElmaClientApi
         }
     }
 
-    public function makePost(string $relativeUrl, array $requestData)
+    public function makePost(string $relativeUrl, array $requestData): array
     {
         $response = $this->client->post($relativeUrl, [
             'headers' => ['Authorization' => 'Bearer ' . $this->bearerToken],
@@ -67,7 +67,7 @@ class ElmaClientApi
         return $data;
     }
 
-    public function makeMultipart(string $relativeUrl, array $requestData)
+    public function makeMultipart(string $relativeUrl, array $requestData): array
     {
         $response = $this->client->post($relativeUrl, [
             'headers' => ['Authorization' => 'Bearer ' . $this->bearerToken],

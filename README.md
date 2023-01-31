@@ -19,6 +19,8 @@ composer require glsv/elma-api
 ## Использование
 ### 1. Выполнение произвольного запроса к API
 ```
+<?php
+
 use Glsv\ElmaApi\ElmaClientApi;
 
 $baseUrl = 'https://elma365.domain.com/pub/v1/';
@@ -51,6 +53,8 @@ $results = $api->makePost($relativeUrl, $requestData);
 итерации пакетной загрузки данных.
 
 ```
+<?php
+
 use Glsv\ElmaApi\ElmaClientApi;
 use Glsv\ElmaApi\services\ListService;
 
@@ -76,4 +80,68 @@ $requestData = [
 
 # $items содержит список всех элементов списка Elma
 $items = $service->getAllItems($relativeUrl, $requestData);
+```
+
+### 3. Поиск по пользователям
+С использованием абстракции `Request` и `Command`
+- Request - обеспечивает корректное формирование параметров запроса
+- Command - выполняет запрос и возвращает не сырой ответ от API, а только необходимые данные в нужном формате.
+```
+<?php
+
+use Glsv\ElmaApi\ElmaClientApi;
+use Glsv\ElmaApi\requests\GetUserListRequest;
+use Glsv\ElmaApi\requests\params\TfFilters;
+use Glsv\ElmaApi\commands\GetUserListCommand;
+
+$baseUrl = 'https://elma365.domain.com/pub/v1/';
+$token = '2ab8026f-ce23-4759-9530-xxxxxxxxxx'; 
+
+$api = new ElmaClientApi($baseUrl, $token);
+
+$tf = new \Glsv\ElmaApi\requests\params\TfFilters();
+$tf->addFilter("login", "userlogin");
+
+$r = new \Glsv\ElmaApi\requests\GetUserListRequest();
+$r->setFilters($tf);
+
+$command = new \Glsv\ElmaApi\commands\GetUserListCommand($api, $r);
+$result = $command->execute();
+```
+#### Пример $result
+`$result` является объектом `ResultListData` с публичными свойствами `$data` и `$total`
+ - _total_ - общее кол-во объектов, удовлетворяющее условиям
+ - _data_ - список объектов в виде массива их атрибутов 
+```
+Glsv\ElmaApi\responses\ResultListData Object
+(
+    [data] => Array
+        (
+            [0] => Array
+                (
+                    [__id] => f42bf145-6b1f-4c46-bbc1-8bfba09f0563
+                    [email] => d.testerov@domain.com
+                    [login] => userlogin
+                    [__status] => Array
+                        (
+                            [order] => 0
+                            [status] => 3
+                        )
+
+                    [fullname] => Array
+                        (
+                            [lastname] => 
+                            [firstname] => 
+                            [middlename] => 
+                        )
+                    ....
+                    [__createdAt] => 2022-12-20T14:18:15.490542994Z
+                    [__deletedAt] => 
+                    [__updatedAt] => 2022-12-21T09:14:30.636072843Z
+                )
+        )
+
+    [total] => 1
+)
+
 ```
