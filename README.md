@@ -145,3 +145,23 @@ Glsv\ElmaApi\responses\ResultListData Object
 )
 
 ```
+
+### 4. Получить элемент списка по ID
+При успешном получении возвращается объект класса `Glsv\ElmaApi\responses\ResultItem`
+```
+<?php
+
+use Glsv\ElmaApi\ElmaClientApi;
+use Glsv\ElmaApi\requests\GetAppItemRequest;
+use Glsv\ElmaApi\commands\GetAppItemCommand;
+
+$baseUrl = 'https://elma365.domain.com/pub/v1/';
+$token = '2ab8026f-ce23-4759-9530-xxxxxxxxxx'; 
+
+$api = new ElmaClientApi($baseUrl, $token);
+
+
+$r = new GetAppItemRequest('namespace', 'app_id', 'eb8c404a-0fd6-41c3-b153-xxxxxxxx');
+$c = new GetAppItemCommand($api, $r);
+$result = $c->execute();
+```

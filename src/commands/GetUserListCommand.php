@@ -6,13 +6,12 @@ namespace Glsv\ElmaApi\commands;
 
 use Glsv\ElmaApi\ElmaClientApi;
 use Glsv\ElmaApi\exceptions\ElmaApiRuntimeException;
-use Glsv\ElmaApi\interfaces\CommandInterface;
 use Glsv\ElmaApi\requests\GetUserListRequest;
 use Glsv\ElmaApi\responses\ResultListData;
 
-class GetUserListCommand implements CommandInterface
+class GetUserListCommand extends BaseCommand
 {
-    protected $url = '/pub/v1/user/list';
+    protected $url = 'user/list';
     protected ElmaClientApi $api;
     protected $request;
 
@@ -22,19 +21,16 @@ class GetUserListCommand implements CommandInterface
         $this->request = $request;
     }
 
-
     public function execute(): ResultListData
     {
-        $result = $this->api->makePost($this->url, $this->request->buildBody());
+        $response = $this->api->makePost($this->apiPrefix . '/' . $this->url, $this->request->buildBody());
 
-        if (!isset($result['success']) || $result['success'] !== true) {
-            throw new ElmaApiRuntimeException($result['error'] ?? 'Unknown error');
+        $this->validateCommonResponse($response);
+
+        if (!isset($response['result']['result']) || !isset($response['result']['total'])) {
+            throw new ElmaApiRuntimeException('Format of response is wrong: ' . json_encode($response));
         }
 
-        if (!isset($result['result']['result']) || !isset($result['result']['total'])) {
-            throw new ElmaApiRuntimeException('Format of response is wrong: ' . json_encode($result));
-        }
-
-        return new ResultListData($result['result']['result'], $result['result']['total']);
+        return new ResultListData($response['result']['result'], $response['result']['total']);
     }
 }

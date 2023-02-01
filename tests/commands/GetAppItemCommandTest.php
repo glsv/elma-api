@@ -2,32 +2,24 @@
 
 namespace Glsv\tests\commands;
 
-use Glsv\ElmaApi\commands\GetUserListCommand;
+use Glsv\ElmaApi\commands\GetAppItemCommand;
 use Glsv\ElmaApi\ElmaClientApi;
 use Glsv\ElmaApi\exceptions\ElmaApiRuntimeException;
-use Glsv\ElmaApi\requests\GetUserListRequest;
-use Glsv\ElmaApi\responses\ResultListData;
+use Glsv\ElmaApi\requests\GetAppItemRequest;
+use Glsv\ElmaApi\responses\ResultItem;
 use PHPUnit\Framework\TestCase;
 
-class GetUserListCommandTest extends TestCase
+class GetAppItemCommandTest extends TestCase
 {
     public $apiResponse = [
         "success" => true,
         "error" => "",
-        "result" => [
-            "result" => [
-                [
-                    "__id" => "xxx",
-                    "email" => "xxx@ccc.com",
-                    "login" => "login",
-                ],
-                [
-                    "__id" => "xxx2",
-                    "email" => "xxx2@ccc.com",
-                    "login" => "login2",
-                ],
+        "item" => [
+            [
+                "__id" => "1f12adb6-4730-4d51-ad99-5466085dfcab",
+                "__createdAt" => "2023-02-01T07:00:19Z",
+                "__createdBy" => "eb8c404a-0fd6-41c3-b153-edacf5ebf20c",
             ],
-            "total" => 20
         ]
     ];
 
@@ -48,20 +40,21 @@ class GetUserListCommandTest extends TestCase
 
         $this->api->method('makePost')->willReturn($apiResponse);
 
-        $c = new GetUserListCommand($this->api, new GetUserListRequest());
+        $c = new GetAppItemCommand($this->api, new GetAppItemRequest('namespace', 'app', 'uuid'));
         $c->execute();
     }
 
-    public function testFailWrongFormat()
+    public function testWrongFormat()
     {
         $this->expectException(ElmaApiRuntimeException::class);
+        $this->expectExceptionMessage('"item" attr is missing for response');
 
         $apiResponse = $this->apiResponse;
-        unset($apiResponse['result']['result']);
+        unset($apiResponse['item']);
 
         $this->api->method('makePost')->willReturn($apiResponse);
 
-        $c = new GetUserListCommand($this->api, new GetUserListRequest());
+        $c = new GetAppItemCommand($this->api, new GetAppItemRequest('namespace', 'app', 'uuid'));
         $c->execute();
     }
 
@@ -69,11 +62,9 @@ class GetUserListCommandTest extends TestCase
     {
         $this->api->method('makePost')->willReturn($this->apiResponse);
 
-        $c = new GetUserListCommand($this->api, new GetUserListRequest());
-        $result = $c->execute();
+        $c = new GetAppItemCommand($this->api, new GetAppItemRequest('namespace', 'app', 'uuid'));
+        $response = $c->execute();
 
-        $this->assertInstanceOf(ResultListData::class, $result);
-        $this->assertSame($this->apiResponse['result']['total'], $result->getTotal());
-        $this->assertSame(count($this->apiResponse['result']['result']), $result->getCount());
+        $this->assertInstanceOf(ResultItem::class, $response);
     }
 }
